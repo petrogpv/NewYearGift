@@ -1,9 +1,6 @@
 package com.petro.newyeargift.gift.confection.entity;
 
 import com.petro.newyeargift.gift.confection.Confection;
-import com.petro.newyeargift.gift.confection.components.Glaze;
-
-import java.math.BigDecimal;
 
 /**
  * Created by Администратор on 26.05.2017.
@@ -13,16 +10,28 @@ public class Bar extends Confection {
         private boolean consistNuts;
 
 
-    public Bar(String name, Glaze glaze, Double weight, Integer sugarPercentage, Integer sugarValue, BigDecimal price, boolean consistNuts) {
-        super(name, glaze, weight, sugarPercentage, sugarValue, price);
-        this.consistNuts = consistNuts;
-    }
+    protected Bar(){}
 
     public boolean isConsistNuts() {
         return consistNuts;
     }
+    public class Builder extends Confection.Builder<Builder> {
 
-    public void setConsistNuts(boolean consistNuts) {
-        this.consistNuts = consistNuts;
+        protected Builder(){}
+
+        public Builder setFlavor(boolean consistNuts){
+            Bar.this.consistNuts = consistNuts;
+            return this;
+        }
+
+        @Override
+        public Bar build() {
+            super.build();
+            return Bar.this;
+        }
+    }
+
+    public static Builder getBuilder() {
+        return new Bar().new Builder();
     }
 }

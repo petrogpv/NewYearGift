@@ -1,0 +1,5 @@
+Name		Glaze		Filling		Weight		Sugar %		Price
+Korovka		NONE		CARAMEL		10.5		40.2		2.1
+Veselka		SYRUP		SOLID		8			70.0		1.4
+Moloko		CHOCOLATE	NOUGAT		12.7		54.6		3.6
+Vkusnyashka	CHOCOLATE	JAM			9.7			25.9		2.0

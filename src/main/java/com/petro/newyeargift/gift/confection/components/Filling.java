@@ -5,6 +5,7 @@ package com.petro.newyeargift.gift.confection.components;
  */
 public enum Filling {
 
+    SOLID,
     CARAMEL,
     NOUGAT,
     JAM

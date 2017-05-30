@@ -1,5 +1,6 @@
 package com.petro.newyeargift.gift.confection;
 
+import com.petro.newyeargift.controller.Utils;
 import com.petro.newyeargift.gift.confection.components.Glaze;
 
 import java.math.BigDecimal;
@@ -9,72 +10,74 @@ import java.math.BigDecimal;
  */
 public abstract class Confection implements Sweetness {
 
-    private String name;
-    private Glaze glaze;
-    private Double weight;
-    private Integer sugarPercentage;
-    private Integer sugarValue;
-    private BigDecimal price;
 
-    public Confection(String name,
-                      Glaze glaze,
-                      Double weight,
-                      Integer sugarPercentage,
-                      Integer sugarValue,
-                      BigDecimal price) {
-        this.name = name;
-        this.glaze = glaze;
-        this.weight = weight;
-        this.sugarPercentage = sugarPercentage;
-        this.sugarValue = sugarValue;
-        this.price = price;
-    }
+    protected String name;
+    protected Glaze glaze;
+    protected Double weight;
+    protected Double sugarPercentage;
+    protected Double sugarValue;
+    protected BigDecimal price;
+
+    protected Confection(){}
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Glaze getGlaze() {
         return glaze;
     }
 
-    public void setGlaze(Glaze glaze) {
-        this.glaze = glaze;
-    }
-
     public Double getWeight() {
         return weight;
     }
 
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
-
-    public Integer getSugarPercentage() {
+    public Double getSugarPercentage() {
         return sugarPercentage;
     }
 
-    public void setSugarPercentage(Integer sugarPercentage) {
-        this.sugarPercentage = sugarPercentage;
-    }
-
-    public Integer getSugarValue() {
+    public Double getSugarValue() {
         return sugarValue;
-    }
-
-    public void setSugarValue(Integer sugarValue) {
-        this.sugarValue = sugarValue;
     }
 
     public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public abstract class Builder <T extends Builder>{
+
+        protected Builder(){}
+
+        public T setName(String name) {
+            Confection.this.name = name;
+            return (T)this;
+        }
+
+        public T setGlaze(Glaze glaze) {
+            Confection.this.glaze = glaze;
+            return (T)this;
+        }
+
+        public T setWeight(Double weight) {
+            Confection.this.weight = weight;
+            return (T)this;
+        }
+
+        public T setSugarPercentage(Double sugarPercentage) {
+            Confection.this.sugarPercentage = sugarPercentage;
+            return (T)this;
+        }
+
+        public T setPrice (BigDecimal price) {
+            Confection.this.price = price;
+            return (T)this;
+        }
+        public Confection build(){
+            Double sugarValue = (sugarPercentage/100)*weight;
+            Confection.this.sugarValue =  Utils.roundDouble(sugarValue);
+            return Confection.this;
+        }
+
     }
+
 }

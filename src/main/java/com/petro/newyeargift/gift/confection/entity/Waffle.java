@@ -1,27 +1,37 @@
 package com.petro.newyeargift.gift.confection.entity;
 
 import com.petro.newyeargift.gift.confection.Confection;
-import com.petro.newyeargift.gift.confection.components.Glaze;
-
-import java.math.BigDecimal;
+import com.petro.newyeargift.gift.confection.components.Flavour;
 
 /**
  * Created by Администратор on 26.05.2017.
  */
 public class Waffle extends Confection {
 
-    private String flavour;
+    private Flavour flavour;
 
-    public Waffle(String name, Glaze glaze, Double weight, Integer sugarPercentage, Integer sugarValue, BigDecimal price, String flavour) {
-        super(name, glaze, weight, sugarPercentage, sugarValue, price);
-        this.flavour = flavour;
-    }
+    protected Waffle(){}
 
-    public String getFlavour() {
+    public Flavour getFlavour() {
         return flavour;
     }
+    public class Builder extends Confection.Builder<Builder> {
 
-    public void setFlavour(String flavour) {
-        this.flavour = flavour;
+        protected Builder(){}
+
+        public Builder setFlavor(Flavour flavour){
+            Waffle.this.flavour = flavour;
+            return this;
+        }
+
+        @Override
+        public Waffle build() {
+            super.build();
+            return Waffle.this;
+        }
+    }
+
+    public static Builder getBuilder() {
+        return new Waffle().new Builder();
     }
 }
