@@ -10,7 +10,6 @@ import java.math.BigDecimal;
  */
 public abstract class Confection implements Sweetness {
 
-
     protected String name;
     protected Glaze glaze;
     protected Double weight;

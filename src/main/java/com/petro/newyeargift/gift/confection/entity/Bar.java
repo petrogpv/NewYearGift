@@ -15,6 +15,7 @@ public class Bar extends Confection {
     public boolean isConsistNuts() {
         return consistNuts;
     }
+
     public class Builder extends Confection.Builder<Builder> {
 
         protected Builder(){}
@@ -33,5 +34,18 @@ public class Bar extends Confection {
 
     public static Builder getBuilder() {
         return new Bar().new Builder();
+    }
+
+    @Override
+    public String toString() {
+        return "Bar{ " +
+                " name = '" + name + '\'' +
+                ", glaze = " + glaze +
+                " consistNuts = " + consistNuts +
+                ", weight = " + weight +
+                ", sugarValue = " + sugarValue +
+                ", sugarPercentage = " + sugarPercentage +
+                ", price = " + price +
+                '}';
     }
 }

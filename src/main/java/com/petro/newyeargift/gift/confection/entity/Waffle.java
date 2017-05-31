@@ -34,4 +34,17 @@ public class Waffle extends Confection {
     public static Builder getBuilder() {
         return new Waffle().new Builder();
     }
+
+    @Override
+    public String toString() {
+        return "Waffle{ " +
+                " name = '" + name + '\'' +
+                ", glaze = " + glaze +
+                " flavour   = " + flavour +
+                ", weight = " + weight +
+                ", sugarValue = " + sugarValue +
+                ", sugarPercentage = " + sugarPercentage +
+                ", price = " + price +
+                '}';
+    }
 }

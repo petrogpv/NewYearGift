@@ -13,13 +13,13 @@ import com.petro.newyeargift.gift.confection.entity.Candy;
 public class CandyFactory implements SweetnessFactory {
 
     @Override
-    public Sweetness create(String line) throws EnumNotFoundException {
-        String [] fields = Utils.parseLine(line);
+    public Sweetness create(String[] fields) throws EnumNotFoundException {
+//        String [] fields = Utils.parseLine(line);
         Candy.Builder builder = Candy.getBuilder();
         builder
                 .setName(fields[0])
-                .setFilling((Filling)Utils.convertStringIntoEnum(Filling.class, fields[1]))
-                .setGlaze((Glaze)Utils.convertStringIntoEnum(Glaze.class, fields[2]))
+                .setGlaze((Glaze)Utils.convertStringIntoEnum(Glaze.class, fields[1]))
+                .setFilling((Filling)Utils.convertStringIntoEnum(Filling.class, fields[2]))
                 .setWeight(Utils.convertStringIntoDouble(fields[3]))
                 .setSugarPercentage(Utils.convertStringIntoDouble(fields[4]))
                 .setPrice(Utils.convertStringIntoBigDecimal(fields[5]))

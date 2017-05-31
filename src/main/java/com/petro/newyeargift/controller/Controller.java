@@ -11,17 +11,18 @@ import com.petro.newyeargift.gift.confection.SweetnessType;
 public class Controller {
     public void process() throws EnumNotFoundException {
 //                            0       1     2   3   4     5
-        String testCandy = "Sosulka SOLID NONE 5.5 30.3 2.2";
-        SweetnessFactory sweetnessFactory= FactorySelector.getInstance()
-                .getSweetnessFactory(SweetnessType.CANDY);
+//        String testCandy = "Sosulka NONE  SOLID  5.5 30.3 2.2";
+//        SweetnessFactory sweetnessFactory= FactorySelector.getInstance()
+//                .getSweetnessFactory(SweetnessType.CANDY);
+//
+//        Sweetness s = null;
+//        try {
+//            s = sweetnessFactory.create(testCandy);
+//        } catch (EnumNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println(s.toString());
 
-        Sweetness s = null;
-        try {
-            s = sweetnessFactory.create(testCandy);
-        } catch (EnumNotFoundException e) {
-            e.printStackTrace();
-        }
-        System.out.println(s.toString());
         Utils utils= new Utils();
         utils.readFromFile();
 
