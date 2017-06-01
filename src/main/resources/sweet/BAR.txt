@@ -1,4 +1,4 @@
 Name		Glaze		Consist nuts		Weight		Sugar %		Price
-Snickers 	CHOCOLATE	YES					20			30.5		5.6
+Snickers 	CHOCOLATE	YES					20			30.567		5.677
 Mars		CHOCOLATE	NO					18			35.7		4.8
 Bounty		CHOCOLATE	NO					15			38.20		5.2

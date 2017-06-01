@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.ParseException;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,22 +27,20 @@ public class Utils {
     public static final String SPLIT_REGEX = "\\s+";
     public static final String DIRECTORY_PATH = "sweet";
     public static final String BOOLEAN_TRUE_STRING = "yes";
-    public static final String BOOLEAN_FALSE_STRING = "yes";
+    public static final String BOOLEAN_FALSE_STRING = "no";
     public static final String CANDY_REGEX = "([A-Za-z]+\\s?-?[A-Za-z]+)\\s+([A-Za-z]+)\\s+([A-Za-z]+)\\s+" +
-            "(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+(\\d+\\.\\d+)\\s+";
+            "(\\d+\\.?\\d*)\\s+(\\d+\\.?\\d*)\\s+(\\d+\\.?\\d*)\\s*";
 
 //    public static String [] parseLine(String[] line){
 //        return line.split(SPLIT_REGEX);
 //    }
     public static Double roundDouble(Double d){
-        DecimalFormat df = new DecimalFormat(DECIMAL_ROUND_FORMAT);
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
+        DecimalFormat df = (DecimalFormat)nf;
+        df.applyPattern(DECIMAL_ROUND_FORMAT);
         String format = df.format(d);
         Double res = null;
-        try {
-            res = (Double)df.parse(format);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+            res = Double.parseDouble(format);
         return res;
     }
     public static BigDecimal roundBigDecimal(BigDecimal price){
@@ -85,14 +83,16 @@ public class Utils {
         for (File f : files ) {
             currentFileName = getFileNameWithoutExtension(f.getName());
             Map<Integer,Sweetness> internalMap = new HashMap<>();
-            i = 1;
+            i = 0;
             try {
                 try (
                         BufferedReader br = new BufferedReader(new FileReader(f))
                 ) {
                     while ((line = br.readLine()) != null) {
-                        sweetness = createSweetnessFromFileLine(currentFileName, line);
-                        internalMap.put(i, sweetness);
+                        if(i != 0){
+                            sweetness = createSweetnessFromFileLine(currentFileName, line);
+                            internalMap.put(i, sweetness);
+                        }
                         i++;
                     }
                 } catch (EnumNotFoundException e) {
@@ -133,10 +133,13 @@ public class Utils {
         Pattern pattern = Pattern.compile(CANDY_REGEX);
         Matcher matcher = pattern.matcher(line);
         List<String> matchedStrings = new ArrayList<>();
+        int groupsCount = 0;
         if(matcher.matches()){
-            while (matcher.find()){
-                matchedStrings.add(matcher.group());
+            groupsCount = matcher.groupCount();
+            for (int i = 1; i <= groupsCount; i++) {
+                matchedStrings.add(matcher.group(i));
             }
+
             return  sweetnessFactory.create(matchedStrings.toArray(new String[matchedStrings.size()]));
         }
         else{
