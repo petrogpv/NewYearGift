@@ -2,4 +2,5 @@ Name		Glaze		Flavour		Weight		Sugar %		Price
 Khrustik	NONE		VANILLA		10			20.6		1.2
 Sweety		SYRUP		CACAO		12			36.6		1.6
 Tasty		CHOCOLATE	STRAWBERRY	11			28.9		1.9
+Tasty		CHOCOLATE4	STRAWBERRY	11			28.9		1.9
 Oki			NONE		HONEY		10			26.8		1.2

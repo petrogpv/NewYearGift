@@ -1,30 +1,51 @@
 package com.petro.newyeargift.controller;
 
-import com.petro.newyeargift.controller.factories.FactorySelector;
-import com.petro.newyeargift.controller.factories.SweetnessFactory;
 import com.petro.newyeargift.gift.confection.Sweetness;
-import com.petro.newyeargift.gift.confection.SweetnessType;
+
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by Администратор on 26.05.2017.
  */
 public class Controller {
-    public void process() throws EnumNotFoundException {
-//                            0       1     2   3   4     5
-//        String testCandy = "Sosulka NONE  SOLID  5.5 30.3 2.2";
-//        SweetnessFactory sweetnessFactory= FactorySelector.getInstance()
-//                .getSweetnessFactory(SweetnessType.CANDY);
-//
-//        Sweetness s = null;
-//        try {
-//            s = sweetnessFactory.create(testCandy);
-//        } catch (EnumNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        System.out.println(s.toString());
+    public static final String DIRECTORY_PATH = "sweet";
 
-        Utils utils= new Utils();
-        utils.readFromFile();
+    public void process() throws EnumNotFoundException {
+
+        Scanner scanner = new Scanner(System.in);
+        List<String> sweetnessesTypes = Utils.getAvailableSweetnessTypesFolder(DIRECTORY_PATH);
+
+        System.out.println("New Year gift creation! \nAvailable sweetnesses: ");
+
+        for (int i = 0; i < sweetnessesTypes.size(); i++) {
+            System.out.println("" + (i + 1) + ". " + sweetnessesTypes.get(i));
+        }
+        System.out.println("Choose sweetness type to add to gift( \"1\" etc.): ");
+
+        int type = 0;
+        while (true) {
+            type = scanner.nextInt();
+
+            if (type < 1 || type > sweetnessesTypes.size()) {
+                System.out.println("Wrong input: \"" + type + "\". Try again: ");
+                continue;
+            }
+            break;
+        }
+
+
+        List<Sweetness> sweetnesses = Utils.getSweetnessesFromFile(DIRECTORY_PATH, sweetnessesTypes.get(type - 1));
+
+        sweetnesses.stream().forEach(System.out::println);
+
+
+//        Gift gift = Utils.readFromFiles(DIRECTORY_PATH);
+//        System.out.println(gift);
+//        gift.sort(SortStrategy.SORT_BY_WEIGHT);
+//        System.out.println(gift);
 
     }
+
+
 }
