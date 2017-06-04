@@ -1,6 +1,5 @@
 package com.petro.newyeargift.controller.sort;
 
-import com.petro.newyeargift.gift.Gift;
 import com.petro.newyeargift.gift.confection.Sweetness;
 
 import java.util.List;

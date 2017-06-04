@@ -14,7 +14,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,16 +27,16 @@ public class Utils {
 
     public static final int PRICE_ROUND_PRECISION = 2;
     public static final String DECIMAL_ROUND_FORMAT = "0.00";
-    public static final String SPLIT_REGEX = "\\s+";
 
     public static final String BOOLEAN_TRUE_STRING = "yes";
     public static final String BOOLEAN_FALSE_STRING = "no";
     public static final String CANDY_REGEX = "([A-Za-z]+\\s?-?[A-Za-z]+)\\s+([A-Za-z]+)\\s+([A-Za-z]+)\\s+" +
             "(\\d+\\.?\\d*)\\s+(\\d+\\.?\\d*)\\s+(\\d+\\.?\\d*)\\s*";
+    public static final String SWEETNESS_AND_AMOUNT_REGEX = "(\\d+)-(\\d+)";
+    public static final String NUMBER_REGEX = "\\d";
+    public static final String YES_NO_REGEX = "[Yy]|[Nn]";
+    public static final String DOUBLE_RANGE_REGEX = "\\d{1,2}(\\.\\d{1,2})?-\\d{1,2}(\\.\\d{1,2})?";
 
-    //    public static String [] parseLine(String[] line){
-//        return line.split(SPLIT_REGEX);
-//    }
     public static Double roundDouble(Double d) {
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
         DecimalFormat df = (DecimalFormat) nf;
@@ -44,7 +46,13 @@ public class Utils {
         res = Double.parseDouble(format);
         return res;
     }
+    public static Double convertStringIntoDouble(String string) {
+        return roundDouble(Double.parseDouble(string));
+    }
 
+    public static BigDecimal convertStringIntoBigDecimal(String string) {
+        return roundBigDecimal(new BigDecimal(string));
+    }
     public static BigDecimal roundBigDecimal(BigDecimal price) {
         return price.setScale(PRICE_ROUND_PRECISION, RoundingMode.CEILING);
     }
@@ -58,69 +66,6 @@ public class Utils {
             throw new EnumNotFoundException(string, e);
         }
 
-    }
-
-    public static Double convertStringIntoDouble(String string) {
-        return roundDouble(Double.parseDouble(string));
-    }
-
-    public static BigDecimal convertStringIntoBigDecimal(String string) {
-        return roundBigDecimal(new BigDecimal(string));
-    }
-
-    public static Gift readFromFiles(String filePaths) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File directory = new File(classLoader.getResource(filePaths).getPath());
-        File[] files = directory.listFiles();
-
-
-        Map<String, Map<Integer, Sweetness>> map = new HashMap<>();
-
-
-//        String line = null;
-//        String  currentFileName = null;
-//        Sweetness sweetness = null;
-//        int i = 1;
-//
-//        for (File f : files ) {
-//            currentFileName = getFileNameWithoutExtension(f);
-//            Map<Integer,Sweetness> internalMap = new HashMap<>();
-//            i = 0;
-//            try {
-//                try (
-//                        BufferedReader br = new BufferedReader(new FileReader(f))
-//                ) {
-//                    while ((line = br.readLine()) != null) {
-//                        if(i != 0){
-//                            sweetness = createSweetnessFromFileLine(currentFileName, line);
-//                            internalMap.put(i, sweetness);
-//                        }
-//                        i++;
-//                    }
-//                } catch (EnumNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-//                map.put(currentFileName, internalMap);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//        }
-
-        for (Map.Entry<String, Map<Integer, Sweetness>> m : map.entrySet()) {
-            Map<Integer, Sweetness> insideMap = m.getValue();
-            for (Map.Entry<Integer, Sweetness> e : insideMap.entrySet()) {
-                System.out.println(e.getValue());
-
-            }
-
-        }
-        Gift gift = new Gift();
-        gift.insertSweetness(map.get("CANDY").get(1));
-        gift.insertSweetness(map.get("WAFFLE").get(1));
-        gift.insertSweetness(map.get("BAR").get(1));
-
-        return gift;
     }
 
     public static boolean convertStringYesNoToBoolean(String string) {
@@ -170,17 +115,27 @@ public class Utils {
         return filenames;
     }
 
-    public static List<Sweetness> getSweetnessesFromFile(String directoryPath, String sweetnessType) {
-        File[] files = readFilesFromFolder(directoryPath);
-        File file = null;
-        for (File f : files) {
-            if (f.getName().startsWith(sweetnessType)) {
-                file = f;
+    public  static ProcessedFileContent getFileContent (String directoryPath, String sweetnessType){
+        List<Sweetness> sweetnesses = getSweetnessesFromFile(directoryPath, sweetnessType);
+        ProcessedFileContent fileContent = new ProcessedFileContent();
+        Sweetness sweetness = null;
+        for (int i = 0; i < sweetnesses.size() ; i++) {
+            sweetness = sweetnesses.get(i);
+            if(sweetness != null){
+                fileContent.addSweetness(sweetness);
+            }else{
+                fileContent.addErrorLine(i + 1);
+
             }
         }
+        return fileContent;
+    }
+    public static List<Sweetness> getSweetnessesFromFile(String directoryPath, String sweetnessType) {
+        File[] files = readFilesFromFolder(directoryPath);
+        File file = getFileBySweetnessType(sweetnessType, files);
         List<Sweetness> sweetnesses = new ArrayList<>();
-        String line = null;
-        Sweetness sweetness = null;
+        String line ;
+        Sweetness sweetness;
         int i = 0;
         try {
             try (
@@ -203,9 +158,17 @@ public class Utils {
         } catch (EnumNotFoundException | IOException e) {
             e.printStackTrace();
         }
-
         return sweetnesses;
+    }
 
+    public static File getFileBySweetnessType(String sweetnessType, File[] files) {
+        File file = null;
+        for (File f : files) {
+            if (f.getName().startsWith(sweetnessType)) {
+                file = f;
+            }
+        }
+        return file;
     }
 
     public static File[] readFilesFromFolder(String directoryPath) {
@@ -213,5 +176,11 @@ public class Utils {
         File directory = new File(classLoader.getResource(directoryPath).getPath());
         return directory.listFiles();
     }
-//    public static List<String>
+
+    public static void insertManySweetnessesInGift(Gift gift, Sweetness sweetness, int amount){
+        for (int i = 0; i < amount; i++) {
+            gift.insertSweetness(sweetness);
+        }
+    }
+
 }

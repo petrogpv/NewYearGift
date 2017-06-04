@@ -2,8 +2,6 @@ package com.petro.newyeargift.gift;
 
 
 import com.petro.newyeargift.controller.sort.SortStrategy;
-import com.petro.newyeargift.controller.sort.SortSweetnesses;
-import com.petro.newyeargift.controller.sort.SortSweetnessesByWeight;
 import com.petro.newyeargift.gift.confection.Sweetness;
 
 import java.util.ArrayList;
@@ -34,6 +32,12 @@ public class Gift{
         SortStrategy.sort(sortType, sweetnesses);
     }
 
+    public Double weight(){
+        final double[] weight = {0};
+        sweetnesses.stream().forEach(x -> weight[0] += x.getWeight());
+        return weight[0];
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder= new StringBuilder();
@@ -41,7 +45,8 @@ public class Gift{
         sweetnesses.stream().forEach(x -> stringBuilder
                 .append(x.toString())
                 .append("\n"));
-
+        stringBuilder.append("WEIGHT: ")
+                .append(weight());
         return stringBuilder.toString();
     }
 }

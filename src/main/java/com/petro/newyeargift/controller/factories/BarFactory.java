@@ -3,8 +3,6 @@ package com.petro.newyeargift.controller.factories;
 import com.petro.newyeargift.controller.EnumNotFoundException;
 import com.petro.newyeargift.controller.Utils;
 import com.petro.newyeargift.gift.confection.Sweetness;
-import com.petro.newyeargift.gift.confection.components.Filling;
-import com.petro.newyeargift.gift.confection.components.Flavour;
 import com.petro.newyeargift.gift.confection.components.Glaze;
 import com.petro.newyeargift.gift.confection.entity.Bar;
 
