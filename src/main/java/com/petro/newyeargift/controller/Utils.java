@@ -27,7 +27,6 @@ public class Utils {
 
     public static final int PRICE_ROUND_PRECISION = 2;
     public static final String DECIMAL_ROUND_FORMAT = "0.00";
-
     public static final String BOOLEAN_TRUE_STRING = "yes";
     public static final String BOOLEAN_FALSE_STRING = "no";
     public static final String CANDY_REGEX = "([A-Za-z]+\\s?-?[A-Za-z]+)\\s+([A-Za-z]+)\\s+([A-Za-z]+)\\s+" +
@@ -35,17 +34,18 @@ public class Utils {
     public static final String SWEETNESS_AND_AMOUNT_REGEX = "(\\d+)-(\\d+)";
     public static final String NUMBER_REGEX = "\\d";
     public static final String YES_NO_REGEX = "[Yy]|[Nn]";
+    public static final String CONTINUE_CLAUSE_YES = "y";
     public static final String DOUBLE_RANGE_REGEX = "\\d{1,2}(\\.\\d{1,2})?-\\d{1,2}(\\.\\d{1,2})?";
+    public static final String WRONG_INPUT = "Wrong input: ";
 
     public static Double roundDouble(Double d) {
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
         DecimalFormat df = (DecimalFormat) nf;
         df.applyPattern(DECIMAL_ROUND_FORMAT);
         String format = df.format(d);
-        Double res = null;
-        res = Double.parseDouble(format);
-        return res;
+        return Double.parseDouble(format);
     }
+
     public static Double convertStringIntoDouble(String string) {
         return roundDouble(Double.parseDouble(string));
     }
@@ -53,6 +53,7 @@ public class Utils {
     public static BigDecimal convertStringIntoBigDecimal(String string) {
         return roundBigDecimal(new BigDecimal(string));
     }
+
     public static BigDecimal roundBigDecimal(BigDecimal price) {
         return price.setScale(PRICE_ROUND_PRECISION, RoundingMode.CEILING);
     }
@@ -65,7 +66,6 @@ public class Utils {
         } catch (IllegalArgumentException e) {
             throw new EnumNotFoundException(string, e);
         }
-
     }
 
     public static boolean convertStringYesNoToBoolean(String string) {
@@ -74,7 +74,7 @@ public class Utils {
         } else if (string.equalsIgnoreCase(BOOLEAN_FALSE_STRING)) {
             return false;
         }
-        throw new IllegalArgumentException("Wrong input: " + string);
+        throw new IllegalArgumentException(WRONG_INPUT + string);
     }
 
     public static Sweetness createSweetnessFromFileLine(String fileName, String line) throws EnumNotFoundException {
@@ -85,13 +85,12 @@ public class Utils {
         Pattern pattern = Pattern.compile(CANDY_REGEX);
         Matcher matcher = pattern.matcher(line);
         List<String> matchedStrings = new ArrayList<>();
-        int groupsCount = 0;
+        int groupsCount;
         if (matcher.matches()) {
             groupsCount = matcher.groupCount();
             for (int i = 1; i <= groupsCount; i++) {
                 matchedStrings.add(matcher.group(i));
             }
-
             return sweetnessFactory.create(matchedStrings.toArray(new String[matchedStrings.size()]));
         } else {
             return null;
@@ -115,28 +114,31 @@ public class Utils {
         return filenames;
     }
 
-    public  static ProcessedFileContent getFileContent (String directoryPath, String sweetnessType){
+    public static ProcessedFileContent getFileContent(String directoryPath, String sweetnessType) {
         List<Sweetness> sweetnesses = getSweetnessesFromFile(directoryPath, sweetnessType);
         ProcessedFileContent fileContent = new ProcessedFileContent();
-        Sweetness sweetness = null;
-        for (int i = 0; i < sweetnesses.size() ; i++) {
+        Sweetness sweetness;
+
+        for (int i = 0; i < sweetnesses.size(); i++) {
             sweetness = sweetnesses.get(i);
-            if(sweetness != null){
+            if (sweetness != null) {
                 fileContent.addSweetness(sweetness);
-            }else{
+            } else {
                 fileContent.addErrorLine(i + 1);
 
             }
         }
         return fileContent;
     }
+
     public static List<Sweetness> getSweetnessesFromFile(String directoryPath, String sweetnessType) {
         File[] files = readFilesFromFolder(directoryPath);
         File file = getFileBySweetnessType(sweetnessType, files);
         List<Sweetness> sweetnesses = new ArrayList<>();
-        String line ;
+        String line;
         Sweetness sweetness;
         int i = 0;
+
         try {
             try (
                     BufferedReader br = new BufferedReader(new FileReader(file))
@@ -154,7 +156,6 @@ public class Utils {
                     e.printStackTrace();
                 }
             }
-
         } catch (EnumNotFoundException | IOException e) {
             e.printStackTrace();
         }
@@ -177,7 +178,7 @@ public class Utils {
         return directory.listFiles();
     }
 
-    public static void insertManySweetnessesInGift(Gift gift, Sweetness sweetness, int amount){
+    public static void insertManySweetnessesInGift(Gift gift, Sweetness sweetness, int amount) {
         for (int i = 0; i < amount; i++) {
             gift.insertSweetness(sweetness);
         }

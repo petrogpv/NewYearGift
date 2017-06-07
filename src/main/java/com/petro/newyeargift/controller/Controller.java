@@ -2,6 +2,7 @@ package com.petro.newyeargift.controller;
 
 import com.petro.newyeargift.gift.Gift;
 import com.petro.newyeargift.gift.confection.Sweetness;
+import com.petro.newyeargift.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +14,21 @@ import java.util.Scanner;
  */
 public class Controller {
     public static final String DIRECTORY_PATH = "sweet";
-    private Gift gift = new Gift();
+    public static final String RANGE_SPLITTER = "-";
+    public static final int ERROR_FLAG = -1;
+    private Gift gift;
+    private View view;
+
+    public Controller(Gift gift, View view) {
+        this.gift = gift;
+        this.view = view;
+    }
 
     public void process() throws EnumNotFoundException {
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("New Year gift creation! ");
+        view.printMessage(View.PRINT_GREETING);
 
         createGift(scanner);
         sortGift(scanner);
@@ -29,14 +38,14 @@ public class Controller {
     }
 
     private void findSweetnessBySugarPercentageRange(Scanner scanner) {
-        System.out.println("Search sweetness by sugar percentage range (\"10.25-20.5\" etc.): ");
+        view.printMessage(View.PRINT_SEARCH);
         String inputString;
         Double[] bounds;
 
         while (true) {
             inputString = scanner.nextLine().trim();
             bounds = convertInputStringRangeToDoubleArray(inputString);
-            if(bounds == null){
+            if (bounds == null) {
                 continue;
             }
             break;
@@ -44,11 +53,11 @@ public class Controller {
         List<Sweetness> filteredSweetnesses =
                 filterSweetnessesBySugarPercentageRange(bounds[0], bounds[1]);
 
-        System.out.println("Result for " + bounds[0] + " - " + bounds[1]);
-        filteredSweetnesses.stream().forEach(System.out::println);
+        view.printSearchResultInput(bounds[0], bounds[1]);
+        view.printSweetnesses(filteredSweetnesses);
     }
 
-    public List<Sweetness> filterSweetnessesBySugarPercentageRange(Double lowBound, Double highBound){
+    public List<Sweetness> filterSweetnessesBySugarPercentageRange(Double lowBound, Double highBound) {
         List<Sweetness> filteredSweetnesses = new ArrayList<>();
         List<Sweetness> sweetnesses = gift.getSweetnesses();
         double sugarPercentage = 0.0;
@@ -65,14 +74,14 @@ public class Controller {
         String[] boundsString;
         Double[] bounds = new Double[2];
         if (!inputString.matches(Utils.DOUBLE_RANGE_REGEX)) {
-            System.out.println("Wrong input! Try again: ");
+            view.printWrongInput();
             return null;
         }
-        boundsString = inputString.split("-");
+        boundsString = inputString.split(RANGE_SPLITTER);
         bounds[0] = Double.parseDouble(boundsString[0]);
         bounds[1] = Double.parseDouble(boundsString[1]);
         if (bounds[0] > bounds[1]) {
-            System.out.println("Wrong input! Try again: ");
+            view.printWrongInput();
             return null;
         }
         return bounds;
@@ -82,31 +91,29 @@ public class Controller {
         boolean flag = true;
         while (flag) {
             chooseSweetness(scanner);
-            System.out.println("Current giftWeight: " + gift.weight());
+            view.printCurrentGiftWeight(gift.weight());
             flag = askForContinue(scanner);
         }
-        System.out.println(gift);
+        view.printMessage(gift.toString());
     }
 
     public void sortGift(Scanner scanner) {
         boolean flag = true;
         while (flag) {
             chooseSortStrategy(scanner);
-            System.out.println(gift);
+            view.printMessage(gift.toString());
             flag = askForContinue(scanner);
         }
     }
 
     public void chooseSortStrategy(Scanner scanner) {
-        System.out.println("Sort gift by:");
-        System.out.println("Weight - \"1\", ");
-        System.out.println("Sugar percentage - \"2\":");
+        view.printMessage(View.PRINT_SORT_GIFT_BY);
         String inputString;
         int res;
         while (true) {
             inputString = scanner.nextLine().trim();
             res = convertInputStringToInt(inputString, 2);
-            if (res > 0) {
+            if (res != ERROR_FLAG) {
                 break;
             }
         }
@@ -116,40 +123,40 @@ public class Controller {
     public int convertInputStringToInt(String inputString, int highBound) {
         int res = 0;
         if (!inputString.matches(Utils.NUMBER_REGEX)) {
-            System.out.println("Wrong input! Try again: ");
-            return -1;
+            view.printWrongInput();
+            return ERROR_FLAG;
         }
         res = Integer.parseInt(inputString);
 
         if (res == 0 || res > highBound) {
-            System.out.println("Wrong input! Try again: ");
-            return -1;
+            view.printWrongInput();
+            return ERROR_FLAG;
         }
         return res;
     }
 
     public boolean askForContinue(Scanner scanner) {
-        String choice = null;
-        System.out.println("Continue? \"y\" - yes, \"n\" - no: ");
+        String choice;
+        view.printMessage(View.PRINT_ASK_FOR_CONTINUE);
         while (true) {
             choice = scanner.nextLine();
             if (!choice.matches(Utils.YES_NO_REGEX)) {
-                System.out.println("Wrong input! Try again: ");
+                view.printWrongInput();
                 continue;
             }
             break;
         }
-        return choice.equalsIgnoreCase("y") ? true : false;
+        return choice.equalsIgnoreCase(Utils.CONTINUE_CLAUSE_YES) ? true : false;
     }
 
     public void chooseSweetness(Scanner scanner) {
-        System.out.println("Available sweetnesses types: ");
+        view.printMessage(View.PRINT_AVAILABLE_SWEETNESSES_TYPES);
 
         List<String> sweetnessesTypes = Utils.getAvailableSweetnessTypesFolder(DIRECTORY_PATH);
 
-        printSweetnesses(sweetnessesTypes);
+        view.printSweetnesses(sweetnessesTypes);
 
-        System.out.println("Choose sweetness type to add to gift( \"1\" etc.): ");
+        view.printMessage(View.PRINT_CHOOSE_SWEETNESS_TYPE);
 
         int type = inputSweetnessType(scanner, sweetnessesTypes.size());
 
@@ -160,11 +167,9 @@ public class Controller {
 
         Map<Integer, Sweetness> sweetnesses = fileContent.getSwetnesses();
 
-        System.out.println("Choose sweetness and amount (\"1-3\" etc.): ");
+        view.printMessage(View.PRINT_CHOOSE_SWEETNESSES_AND_AMOUNT);
 
-        String sweetnessAndAmount;
-
-        int [] numberAndAmount = getNumberAndAmount(scanner, sweetnesses.size());
+        int[] numberAndAmount = getNumberAndAmount(scanner, sweetnesses.size());
 
         Utils.insertManySweetnessesInGift(gift, sweetnesses.get(numberAndAmount[0]),
                 numberAndAmount[1]);
@@ -176,7 +181,7 @@ public class Controller {
         while (true) {
             sweetnessAndAmount = scanner.nextLine().trim();
             numberAndAmount = convertInputStringToNumberAndAmount(sweetnessAndAmount, bound);
-            if(numberAndAmount == null){
+            if (numberAndAmount == null) {
                 continue;
             }
             break;
@@ -197,16 +202,12 @@ public class Controller {
         return type;
     }
 
-    public void printSweetnesses(List<String> sweetnessesTypes) {
-        for (int i = 0; i < sweetnessesTypes.size(); i++) {
-            System.out.println("" + (i + 1) + ". " + sweetnessesTypes.get(i));
-        }
-    }
 
-    public int [] convertInputStringToNumberAndAmount(String inputString, int highBound) {
-        int [] res = new int[2];
+
+    public int[] convertInputStringToNumberAndAmount(String inputString, int highBound) {
+        int[] res = new int[2];
         if (!inputString.matches(Utils.SWEETNESS_AND_AMOUNT_REGEX)) {
-            System.out.println("Wrong input! Try again: ");
+            view.printWrongInput();
             return null;
         }
         String[] inputs = inputString.split("-");
@@ -214,7 +215,7 @@ public class Controller {
         res[1] = Integer.parseInt(inputs[1]);
 
         if (res[0] == 0 || res[0] > highBound) {
-            System.out.println("Wrong input! Try again: ");
+            view.printWrongInput();
             return null;
         }
         return res;
@@ -223,13 +224,10 @@ public class Controller {
     public void printProcessedFileContent(ProcessedFileContent fileContent) {
         Map<Integer, Sweetness> sweetnesses = fileContent.getSwetnesses();
         List<Integer> errorLines = fileContent.getErrorLines();
-        for (Map.Entry<Integer, Sweetness> entry : sweetnesses.entrySet()) {
-            System.out.println(entry.getKey() + ". " + entry.getValue());
-        }
+        view.printReadSweetnessesFromFile(sweetnesses);
         if (errorLines.size() != 0) {
-            System.out.print("There are errors in file. Can not read lines: ");
-            errorLines.stream().forEach(x -> System.out.print(x + ", "));
-            System.out.println("");
+            view.printMessage(View.PRINT_ERRORS_IN_LINE);
+            view.printErrorLinesNumbers(errorLines);
         }
     }
 
