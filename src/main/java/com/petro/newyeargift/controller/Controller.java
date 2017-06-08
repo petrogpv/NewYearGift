@@ -13,8 +13,7 @@ import java.util.Scanner;
  * Created by Администратор on 26.05.2017.
  */
 public class Controller {
-    public static final String DIRECTORY_PATH = "sweet";
-    public static final String RANGE_SPLITTER = "-";
+
     public static final int ERROR_FLAG = -1;
     private Gift gift;
     private View view;
@@ -33,6 +32,7 @@ public class Controller {
         createGift(scanner);
         sortGift(scanner);
         findSweetnessBySugarPercentageRange(scanner);
+
         scanner.close();
 
     }
@@ -44,8 +44,9 @@ public class Controller {
 
         while (true) {
             inputString = scanner.nextLine().trim();
-            bounds = convertInputStringRangeToDoubleArray(inputString);
+            bounds = Utils.convertInputStringRangeToDoubleArrayAndCheck(inputString);
             if (bounds == null) {
+                view.printWrongInput();
                 continue;
             }
             break;
@@ -70,22 +71,6 @@ public class Controller {
         return filteredSweetnesses;
     }
 
-    public Double[] convertInputStringRangeToDoubleArray(String inputString) {
-        String[] boundsString;
-        Double[] bounds = new Double[2];
-        if (!inputString.matches(Utils.DOUBLE_RANGE_REGEX)) {
-            view.printWrongInput();
-            return null;
-        }
-        boundsString = inputString.split(RANGE_SPLITTER);
-        bounds[0] = Double.parseDouble(boundsString[0]);
-        bounds[1] = Double.parseDouble(boundsString[1]);
-        if (bounds[0] > bounds[1]) {
-            view.printWrongInput();
-            return null;
-        }
-        return bounds;
-    }
 
     public void createGift(Scanner scanner) {
         boolean flag = true;
@@ -112,28 +97,17 @@ public class Controller {
         int res;
         while (true) {
             inputString = scanner.nextLine().trim();
-            res = convertInputStringToInt(inputString, 2);
-            if (res != ERROR_FLAG) {
-                break;
+            res =  Utils.convertInputStringToIntAndCheck(inputString, 2);
+            if (res == ERROR_FLAG) {
+                view.printWrongInput();
+                continue;
             }
+            break;
         }
         gift.sort(res);
     }
 
-    public int convertInputStringToInt(String inputString, int highBound) {
-        int res = 0;
-        if (!inputString.matches(Utils.NUMBER_REGEX)) {
-            view.printWrongInput();
-            return ERROR_FLAG;
-        }
-        res = Integer.parseInt(inputString);
 
-        if (res == 0 || res > highBound) {
-            view.printWrongInput();
-            return ERROR_FLAG;
-        }
-        return res;
-    }
 
     public boolean askForContinue(Scanner scanner) {
         String choice;
@@ -152,7 +126,7 @@ public class Controller {
     public void chooseSweetness(Scanner scanner) {
         view.printMessage(View.PRINT_AVAILABLE_SWEETNESSES_TYPES);
 
-        List<String> sweetnessesTypes = Utils.getAvailableSweetnessTypesFolder(DIRECTORY_PATH);
+        List<String> sweetnessesTypes = Utils.getAvailableSweetnessTypesFromFolder();
 
         view.printSweetnesses(sweetnessesTypes);
 
@@ -161,7 +135,7 @@ public class Controller {
         int type = inputSweetnessType(scanner, sweetnessesTypes.size());
 
         ProcessedFileContent fileContent =
-                Utils.getFileContent(DIRECTORY_PATH, sweetnessesTypes.get(type - 1));
+                Utils.getFileContent(sweetnessesTypes.get(type - 1));
 
         printProcessedFileContent(fileContent);
 
@@ -180,8 +154,9 @@ public class Controller {
         int[] numberAndAmount;
         while (true) {
             sweetnessAndAmount = scanner.nextLine().trim();
-            numberAndAmount = convertInputStringToNumberAndAmount(sweetnessAndAmount, bound);
+            numberAndAmount = Utils.convertInputStringToNumberAndAmountAndCheck(sweetnessAndAmount, bound);
             if (numberAndAmount == null) {
+                view.printWrongInput();
                 continue;
             }
             break;
@@ -194,31 +169,14 @@ public class Controller {
         String typeString;
         while (true) {
             typeString = scanner.nextLine().trim();
-            type = convertInputStringToInt(typeString, bound);
-            if (type > 0) {
-                break;
+            type = Utils.convertInputStringToIntAndCheck(typeString, bound);
+            if (type == ERROR_FLAG) {
+                view.printWrongInput();
+                continue;
             }
+            break;
         }
         return type;
-    }
-
-
-
-    public int[] convertInputStringToNumberAndAmount(String inputString, int highBound) {
-        int[] res = new int[2];
-        if (!inputString.matches(Utils.SWEETNESS_AND_AMOUNT_REGEX)) {
-            view.printWrongInput();
-            return null;
-        }
-        String[] inputs = inputString.split("-");
-        res[0] = Integer.parseInt(inputs[0]);
-        res[1] = Integer.parseInt(inputs[1]);
-
-        if (res[0] == 0 || res[0] > highBound) {
-            view.printWrongInput();
-            return null;
-        }
-        return res;
     }
 
     public void printProcessedFileContent(ProcessedFileContent fileContent) {

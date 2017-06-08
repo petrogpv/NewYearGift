@@ -24,18 +24,20 @@ import java.util.regex.Pattern;
  * Created by Администратор on 27.05.2017.
  */
 public class Utils {
-
+    public static final int ERROR_FLAG = -1;
     public static final int PRICE_ROUND_PRECISION = 2;
+    public static final String DIRECTORY_PATH = "sweet";
+    public static final String RANGE_SPLITTER = "-";
     public static final String DECIMAL_ROUND_FORMAT = "0.00";
     public static final String BOOLEAN_TRUE_STRING = "yes";
     public static final String BOOLEAN_FALSE_STRING = "no";
     public static final String CANDY_REGEX = "([A-Za-z]+\\s?-?[A-Za-z]+)\\s+([A-Za-z]+)\\s+([A-Za-z]+)\\s+" +
             "(\\d+\\.?\\d*)\\s+(\\d+\\.?\\d*)\\s+(\\d+\\.?\\d*)\\s*";
+    public static final String DOUBLE_RANGE_REGEX = "\\d{1,2}(\\.\\d{1,2})?-\\d{1,2}(\\.\\d{1,2})?";
     public static final String SWEETNESS_AND_AMOUNT_REGEX = "(\\d+)-(\\d+)";
     public static final String NUMBER_REGEX = "\\d";
     public static final String YES_NO_REGEX = "[Yy]|[Nn]";
     public static final String CONTINUE_CLAUSE_YES = "y";
-    public static final String DOUBLE_RANGE_REGEX = "\\d{1,2}(\\.\\d{1,2})?-\\d{1,2}(\\.\\d{1,2})?";
     public static final String WRONG_INPUT = "Wrong input: ";
 
     public static Double roundDouble(Double d) {
@@ -77,6 +79,47 @@ public class Utils {
         throw new IllegalArgumentException(WRONG_INPUT + string);
     }
 
+    public static int[] convertInputStringToNumberAndAmountAndCheck(String inputString, int highBound) {
+        int[] res = new int[2];
+        if (!inputString.matches(Utils.SWEETNESS_AND_AMOUNT_REGEX)) {
+            return null;
+        }
+        String[] inputs = inputString.split("-");
+        res[0] = Integer.parseInt(inputs[0]);
+        res[1] = Integer.parseInt(inputs[1]);
+
+        if (res[0] == 0 || res[0] > highBound) {
+            return null;
+        }
+        return res;
+    }
+    public static int convertInputStringToIntAndCheck(String inputString, int highBound) {
+        int res;
+        if (!inputString.matches(Utils.NUMBER_REGEX)) {
+            return ERROR_FLAG;
+        }
+        res = Integer.parseInt(inputString);
+
+        if (res == 0 || res > highBound) {
+            return ERROR_FLAG;
+        }
+        return res;
+    }
+
+    public static Double[] convertInputStringRangeToDoubleArrayAndCheck(String inputString) {
+        String[] boundsString;
+        Double[] bounds = new Double[2];
+        if (!inputString.matches(Utils.DOUBLE_RANGE_REGEX)) {
+            return null;
+        }
+        boundsString = inputString.split(RANGE_SPLITTER);
+        bounds[0] = Double.parseDouble(boundsString[0]);
+        bounds[1] = Double.parseDouble(boundsString[1]);
+        if (bounds[0] > bounds[1]) {
+            return null;
+        }
+        return bounds;
+    }
     public static Sweetness createSweetnessFromFileLine(String fileName, String line) throws EnumNotFoundException {
         FactorySelector factorySelector = FactorySelector.getInstance();
         SweetnessType sweetnessType = SweetnessType.valueOf(fileName);
@@ -104,8 +147,8 @@ public class Utils {
         return filename.substring(0, indexOfDot);
     }
 
-    public static List<String> getAvailableSweetnessTypesFolder(String directoryPath) {
-        File[] files = readFilesFromFolder(directoryPath);
+    public static List<String> getAvailableSweetnessTypesFromFolder() {
+        File[] files = readFilesFromFolder();
         List<String> filenames = new ArrayList<>();
 
         for (File file : files) {
@@ -114,8 +157,8 @@ public class Utils {
         return filenames;
     }
 
-    public static ProcessedFileContent getFileContent(String directoryPath, String sweetnessType) {
-        List<Sweetness> sweetnesses = getSweetnessesFromFile(directoryPath, sweetnessType);
+    public static ProcessedFileContent getFileContent(String sweetnessType) {
+        List<Sweetness> sweetnesses = getSweetnessesFromFile(sweetnessType);
         ProcessedFileContent fileContent = new ProcessedFileContent();
         Sweetness sweetness;
 
@@ -131,8 +174,8 @@ public class Utils {
         return fileContent;
     }
 
-    public static List<Sweetness> getSweetnessesFromFile(String directoryPath, String sweetnessType) {
-        File[] files = readFilesFromFolder(directoryPath);
+    public static List<Sweetness> getSweetnessesFromFile( String sweetnessType) {
+        File[] files = readFilesFromFolder();
         File file = getFileBySweetnessType(sweetnessType, files);
         List<Sweetness> sweetnesses = new ArrayList<>();
         String line;
@@ -172,9 +215,9 @@ public class Utils {
         return file;
     }
 
-    public static File[] readFilesFromFolder(String directoryPath) {
+    public static File[] readFilesFromFolder() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File directory = new File(classLoader.getResource(directoryPath).getPath());
+        File directory = new File(classLoader.getResource(DIRECTORY_PATH).getPath());
         return directory.listFiles();
     }
 
